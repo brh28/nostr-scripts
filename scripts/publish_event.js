@@ -11,21 +11,23 @@ const {
 require('websocket-polyfill');
 require('dotenv').config();
 
-const sk = process.env.nostrPrivKey // brh3
+// const fs = require('fs');
+
+const sk = process.env.nostrPrivKey
 const pk = getPublicKey(sk);
 console.log(`pk = ${pk}`)
 
-const event = {
-  kind: 0,
-  created_at: Math.floor(Date.now() / 1000),
-  tags: [],
-  content: JSON.stringify({
-  	name: "WordForm.Space",
-  	nip05: "_@wordform.space",
-  	about: "A marketplace for online content.",
-  	picture: "https://wordform.space/favicon.ico"
-  }),
-  pubkey: pk
+const arguments = process.argv;
+console.log(arguments[2])
+
+let event = null;
+switch (arguments[2]) {
+  case ('delete'):
+    const template = require('./events/delete');
+    event = template(arguments[3], 'this was an accident');
+    break;
+  default:
+    break;
 }
 
 event.id = getEventHash(event)
@@ -33,7 +35,6 @@ event.sig = signEvent(event, sk)
 
 const ok = validateEvent(event)
 const veryOk = verifySignature(event)
-
 
 const relayConnect = async (url, evt) => {
 	const relay = relayInit(url)
@@ -83,6 +84,7 @@ const relayConnect = async (url, evt) => {
 }
 
 const publishEvent = async (relay, evt) => {
+  console.log(`Publishing event: ${JSON.stringify(evt)}`);
 	const pub = relay.publish(evt)
 	pub.on('ok', () => {
 	  	console.log(`${relay.url} has accepted our event`)
