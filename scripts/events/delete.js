@@ -12,17 +12,3 @@ module.exports = (eventId, msg) => {
   		content: msg
 	}
 }
-
-
-// {
-//   "kind": 0,
-//   "created_at": Math.floor(Date.now() / 1000),
-//   tags: [],
-//   content: JSON.stringify({
-//   	name: "WordForm.Space",
-//   	nip05: "_@wordform.space",
-//   	about: "A marketplace for online content.",
-//   	picture: "https://wordform.space/favicon.ico"
-//   }),
-//   pubkey: pk
-// }

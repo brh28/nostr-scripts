@@ -20,10 +20,15 @@ console.log(`pk = ${pk}`)
 const arguments = process.argv;
 console.log(arguments[2])
 
+let template
 let event = null;
 switch (arguments[2]) {
+  case ('metadata'):
+    template = require('./events/metadata');
+    event = template();
+    break;
   case ('delete'):
-    const template = require('./events/delete');
+    template = require('./events/delete');
     event = template(arguments[3], 'this was an accident');
     break;
   default:
