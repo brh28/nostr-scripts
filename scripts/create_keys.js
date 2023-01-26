@@ -2,8 +2,11 @@
 
 const {generatePrivateKey, getPublicKey} = require('nostr-tools');
 
-let sk = generatePrivateKey() // `sk` is a hex string
-let pk = getPublicKey(sk) // `pk` is a hex string
+const generateKeyPair = () => {
+	const sk = generatePrivateKey()
+	return { privKey: sk, pubkey: getPublicKey(sk) }
+}
 
-console.log(sk);
-console.log(pk);
+const keys = generateKeyPair();
+console.log('privKey = ', keys.privKey);
+console.log('pubkey = ', keys.pubkey);
