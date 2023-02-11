@@ -11,7 +11,7 @@ const {
 require('websocket-polyfill');
 
 const arguments = process.argv;
-const listenFor = arguments.slice(2);
+const users = arguments.slice(2);
 
 const connect = (relayUrls) => {
 	const relays = relayUrls.map(url => new Promise(async (resolve, reject) => {
@@ -20,6 +20,7 @@ const connect = (relayUrls) => {
 			await relay.connect()
 
 			relay.on('connect', async () => {
+				console.log(`connected to ${relay.url}`)
 			  	resolve(relay);
 			})
 			relay.on('error', () => {
@@ -39,14 +40,15 @@ const connect = (relayUrls) => {
 		});
 }
 
-const listen = (relays, pks) => {
+const listen = (relays, pks, users) => {
 	relays.forEach(r => {
-		const sub = r.sub([
-		  {
-		    kinds: [1],
-		    authors: pks
-		  }
-		]);
+		const filters = {
+			kinds: [0, 1],
+                    	authors: pks
+		}
+		if (users && users.length > 0) filters['#u'] = users
+		console.log(filters)
+		const sub = r.sub([filters]);
 
 		sub.on('event', event => {
 		  console.log('got event:', event)
@@ -57,8 +59,17 @@ const listen = (relays, pks) => {
 
 
 
-connect(["wss://nostr.wordform.space"])
+connect(["wss://nostr1.tunnelsats.com", 
+	"wss://nostr-01.bolt.observer", 
+	"wss://nostr-pub.wellorder.net", 
+	"wss://nostr-relay.wlvs.space",
+	"wss://nostr.bitcoiner.social",
+	"wss://relay.damus.io",
+	"wss://relay.nostr.info",
+	"wss://relayer.fiatjaf.com",
+	"wss://nostr.v0l.io"
+	])
 	.then(async (relays) => {
-		await listen(relays, listenFor)
+		await listen(relays, ['55edcc101aa6fd616f1bbcfe404198eed6dfb0d4370191c2654530d7779dabce'], users)
 	})
 	.catch(err => console.log(err))

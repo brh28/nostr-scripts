@@ -23,16 +23,20 @@ console.log(arguments[2])
 let template
 let event = null;
 switch (arguments[2]) {
-  case ('metadata'):
-    template = require('./events/metadata');
-    event = template();
-    break;
-  case ('delete'):
-    template = require('./events/delete');
-    event = template(arguments[3], 'this was an accident');
-    break;
-  default:
-    break;
+	case ('metadata'):
+		template = require('./events/metadata');
+		event = template();
+		break;
+	case ('note'):
+		template = require('./events/note');
+		event = template(arguments[3]);
+		break;
+	case ('delete'):
+		template = require('./events/delete');
+		event = template(arguments[3], 'this was an accident');
+		break;
+	default:
+		break;
 }
 
 event.id = getEventHash(event)
@@ -41,7 +45,7 @@ event.sig = signEvent(event, sk)
 const ok = validateEvent(event)
 const veryOk = verifySignature(event)
 
-const relayConnect = async (url, evt) => {
+const publishToRelay = async (url, evt) => {
 	const relay = relayInit(url)
 	await relay.connect()
 
@@ -89,7 +93,6 @@ const relayConnect = async (url, evt) => {
 }
 
 const publishEvent = async (relay, evt) => {
-  console.log(`Publishing event: ${JSON.stringify(evt)}`);
 	const pub = relay.publish(evt)
 	pub.on('ok', () => {
 	  	console.log(`${relay.url} has accepted our event`)
@@ -102,14 +105,10 @@ const publishEvent = async (relay, evt) => {
 	})
 }
 
+console.log(`Publishing event: ${JSON.stringify(event)}`);
 [
-	"wss://nostr.mado.io", 
-	"wss://relay.damus.io", 
-	"wss://relay.nostr.ch", 
-	"wss://relay.nostr.info"
+	"wss://nostr.wordform.space"
 ]
 .forEach(async url => {
-	await relayConnect(url, event)
-	//.then(r => publishEvent(r, event))
+	await publishToRelay(url, event)
 })
-// .forEach(async r => await publishEvent(r, event))
